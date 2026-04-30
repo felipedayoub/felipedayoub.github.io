@@ -1,0 +1,64 @@
+---  
+title: "Tutorial 1: Configuração de ambiente com QEMU e libvirt"  
+date: 2026-03-04  
+categories: [kernel, desenvolvimento]  
+tags: [linux, kernel, qemu, libvirt]  
+--- 
+
+## Resumo  
+  
+Neste tutorial, foi realizado o setup de um ambiente de testes para desenvolvimento do kernel Linux utilizando QEMU e libvirt. A ideia principal é criar uma máquina virtual (guest) com acesso via SSH, isolada do sistema principal (host), permitindo testar modificações no kernel de forma segura. 
+  
+O processo incluiu:  
+- Criação de um diretório de trabalho com permissões específicas  
+- Configuração de variáveis de ambiente via script (`activate.sh`)  
+- Download e preparação de uma imagem de disco (Debian ARM64)  
+- Configuração e inicialização de uma máquina virtual com libvirt  
+- Acesso à VM via SSH  
+  
+## Experiência e dificuldades  
+  
+Durante a execução do tutorial, alguns pontos chamaram atenção:  
+  
+### 1. Problemas com permissões  
+  
+Em um primeiro momento, tive problemas relacionados a permissões ao lidar com arquivos e com o libvirt. Mesmo após adicionar meu usuário ao grupo necessário, algumas operações não funcionavam corretamente.
+  
+**Solução:**  
+Percebi que era necessário fazer logout e login novamente para que a alteração de grupo tivesse efeito:
+
+```bash  
+sudo usermod -aG libvirt-qemu "$USER"
+```
+
+Após reiniciar a sessão, os problemas de permissão foram resolvidos.
+
+### 2. Erro ao executar comandos do `virsh`
+
+Na maioria dos casos, os comandos rodados com `virsh`  não funcionavam propriamente.
+
+**Solução:**  
+Foi necessário utilizar `sudo` nesses comandos comandos, como feito abaixo:
+
+```bash
+sudo virsh list --all
+```
+
+### 3. VM não inicializa corretamente
+
+Em uma das tentativas, a máquina virtual não inicializou corretamente. Isso parecia estar relacionado à forma como a imagem de disco estava configurada.
+
+**Solução:**  
+Utilizei a ferramenta abaixo para inspecionar as partições da imagem:
+
+```bash
+virt-filesystems --long -h --all -a <imagem>
+```
+
+Com isso, consegui verificar se as partições estavam corretas e ajustar a configuração quando necessário.
+
+## Conclusão
+
+O tutorial foi concluído com sucesso, resultando em um ambiente funcional para desenvolvimento e testes de kernel Linux.
+
+Apesar de alguns problemas iniciais com permissões e execução de comandos, todos foram resolvidos com ajustes simples. O ambiente configurado será utilizado como base para os próximos tutoriais da disciplina.
